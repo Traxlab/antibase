@@ -89,6 +89,7 @@ def preprocess_sample(sample, antiBase_dict, adduct_titles, cutoff_percent):
 			if abs(RT_list[i] - uniqueRT)/RT_list[i] <= 0.1:
 				pop_list.append(i)
 			else:
+				#pop_list.append(i)
 				uniqueRT = RT_list[i]
 
 		filtered_antiBase_adduct_map = [output_mapping_dict[key][0][a] for a in range(0,len(RT_list)) if a not in pop_list]
@@ -96,8 +97,8 @@ def preprocess_sample(sample, antiBase_dict, adduct_titles, cutoff_percent):
 		filtered_scan_RT_map = [output_mapping_dict[key][2][c] for c in range(0,len(RT_list)) if c not in pop_list]
 		
 		filtered_output_mapping_dict[key] = [filtered_antiBase_adduct_map, filtered_scan_name_map, filtered_scan_RT_map]
-
-	filtered_output_mapping_dict= {keys:values for keys,values in output_mapping_dict.items() if output_mapping_dict[keys][0] and len(output_mapping_dict[keys][0])>1}
+		#print(filtered_output_mapping_dict[key])
+	filtered_output_mapping_dict= {keys:values for keys,values in filtered_output_mapping_dict.items() if filtered_output_mapping_dict[keys][0] and len(filtered_output_mapping_dict[keys][0])>1}
 	output_mapping_dict = None
 	return filtered_output_mapping_dict
 import time
