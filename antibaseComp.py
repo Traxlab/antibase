@@ -97,7 +97,7 @@ def preprocess_sample(sample, antiBase_dict, adduct_titles, cutoff_percent):
 		
 		filtered_output_mapping_dict[key] = [filtered_antiBase_adduct_map, filtered_scan_name_map, filtered_scan_RT_map]
 
-	filtered_output_mapping_dict= {keys:values for keys,values in output_mapping_dict.items() if output_mapping_dict[keys][0]}
+	filtered_output_mapping_dict= {keys:values for keys,values in output_mapping_dict.items() if output_mapping_dict[keys][0] and len(output_mapping_dict[keys][0])>1}
 	output_mapping_dict = None
 	return filtered_output_mapping_dict
 import time
