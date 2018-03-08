@@ -62,7 +62,7 @@ def preprocess_sample(sample, antiBase_dict, adduct_titles, cutoff_percent):
 	for antiBase_key in antiBase_dict.keys():
 		antiBase_adduct_map = []
 		scan_name_map = []
-		scan_RT_map = [] #initialize array with impossible value
+		scan_RT_map = []
 		counter = 0
 		for spectra_key in filtered_spectra.keys():
 
@@ -70,38 +70,38 @@ def preprocess_sample(sample, antiBase_dict, adduct_titles, cutoff_percent):
 				base_num = antiBase_dict[antiBase_key][j]
 				spec_num = filtered_spectra[spectra_key][0]
 				spec_RT = filtered_spectra[spectra_key][1]
-				#print(base_num, spec_num)
-				#print(type(base_num), type(spec_num))
+
 				diff = abs(base_num - spec_num)/spec_num
 				if diff < 0.0001:
-					# if not scan_RT_map:
-						#print("new hit")
 					counter += 1
 					antiBase_adduct_map.append(adduct_titles[j])
 					scan_name_map.append(spectra_key)
 					scan_RT_map.append(spec_RT)
-					# else:
-					# 	#for ret in scan_RT_map:
-					# 	#	if abs(ret - spec_RT)/spec_RT <= 0.001:
-					# 			#print("new hit")
-					# 			counter += 1
-					# 			antiBase_adduct_map.append(adduct_titles[j])
-					# 			scan_name_map.append(spectra_key)
-					# 			scan_RT_map.append(spec_RT)
-					#input("....")
-		output_mapping_dict[antiBase_key] = [antiBase_adduct_map,scan_name_map, spec_RT]
+
+		output_mapping_dict[antiBase_key] = [antiBase_adduct_map,scan_name_map, scan_RT_map]
+	print("Now filtering")
+	filtered_output_mapping_dict = {}
 	for key in output_mapping_dict.keys():
 		uniqueRT = 0  
 		RT_list = output_mapping_dict[key][2]
+		pop_list = []
 		for i in range(0, len(RT_list)):
-			if 
-				
-			#if counter >=2:
-			#	break
+			if abs(RT_list[i] - uniqueRT)/RT_list[i] <= 0.1:
+				pop_list.append(i)
+			else:
+				uniqueRT = RT_list[i]
 
-	return output_mapping_dict
+		filtered_antiBase_adduct_map = [output_mapping_dict[key][0][a] for a in range(0,len(RT_list)) if a not in pop_list]
+		filtered_scan_name_map = [output_mapping_dict[key][1][b] for b in range(0,len(RT_list)) if not b in pop_list]
+		filtered_scan_RT_map = [output_mapping_dict[key][2][c] for c in range(0,len(RT_list)) if c not in pop_list]
+		
+		filtered_output_mapping_dict[key] = [filtered_antiBase_adduct_map, filtered_scan_name_map, filtered_scan_RT_map]
+
+	filtered_output_mapping_dict= {keys:values for keys,values in output_mapping_dict.items() if output_mapping_dict[keys][0]}
+	output_mapping_dict = None
+	return filtered_output_mapping_dict
 import time
 start_time = time.time()
 antiBase_dict,adduct_titles = importAdductMasses("new_antiBase_file.csv")
-k= preprocess_sample("010818_BH14_pos.mzXML", antiBase_dict,adduct_titles, 0.1)
+k = preprocess_sample("010818_BH14_pos.mzXML", antiBase_dict,adduct_titles, 0.1)
 print("--- %s seconds ---" % (time.time() - start_time))
