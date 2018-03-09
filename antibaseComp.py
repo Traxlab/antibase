@@ -72,7 +72,7 @@ def preprocess_sample(sample, antiBase_dict, adduct_titles, cutoff_percent):
 				spec_RT = filtered_spectra[spectra_key][1]
 
 				diff = abs(base_num - spec_num)/spec_num
-				if diff < 0.0001:
+				if diff < 0.0000001:
 					counter += 1
 					antiBase_adduct_map.append(adduct_titles[j])
 					scan_name_map.append(spectra_key)
