@@ -4,13 +4,17 @@ import numpy as np
 import sys
 import csv
 from datatoJson import *
+import glob
+import os
+import webbrowser
+import time
 
 def importAdductMasses(antiBase_file):
 	with open(antiBase_file) as file:
 		reader = csv.reader(file)
 		adduct_titles = next(reader)
 		adduct_titles = adduct_titles[6:]
-		print(adduct_titles)
+		#print(adduct_titles)
 		antiBase_dict = {}
 		
 		for row in reader:
@@ -125,10 +129,13 @@ def filter_sample(output_mapping_dict):
 	filtered_output_mapping_dict= {keys:values for keys,values in filtered_output_mapping_dict.items() if filtered_output_mapping_dict[keys][0] and len(filtered_output_mapping_dict[keys][0])>=1}
 	output_mapping_dict = None
 	return filtered_output_mapping_dict
-import time
+
 start_time = time.time()
 antiBase_dict,adduct_titles = importAdductMasses("new_antiBase_file.csv")
-k = preprocess_sample("010818_BH14_pos.mzXML", antiBase_dict,adduct_titles, 0.1,2)
+k = preprocess_sample(glob.glob("*.mzXML")[0], antiBase_dict,adduct_titles, 0.1,2)
 k = filter_sample(k)
 makeJson(k)
 print("--- %s seconds ---" % (time.time() - start_time))
+os.system("python3 -m http.server")
+
+
