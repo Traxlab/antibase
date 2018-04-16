@@ -23,7 +23,7 @@ def createLinks(antiBase_map):
 			temp_link = {}
 			temp_link["source"] = key + " , " + str(mass.calculate_mass(formula=key))
 			temp_link["target"] = str(antiBase_map[key][1][j]) + " , " + str(antiBase_map[key][3][j]) + " , " +str(antiBase_map[key][0][j])
-			temp_link["value"] = 10
+			temp_link["value"] = antiBase_map[key][4][j]
 			links_list.append(temp_link)
 	return links_list
 def makeJson(antiBase_map):

@@ -21,6 +21,7 @@ text {
 <svg width="4000" height="4000"></svg>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
+var data = ["Option 1", "Option 2", "Option 3"];
 
 var svg = d3.select("svg"),
     width = +svg.attr("width"),
@@ -32,6 +33,7 @@ var simulation = d3.forceSimulation()
     .force("link", d3.forceLink().id(function(d) { return d.id; }))
     .force("charge", d3.forceManyBody())
     .force("center", d3.forceCenter(width / 2, height / 2));
+
 
 d3.json("data.json", function(error, graph) {
   if (error) throw error;
