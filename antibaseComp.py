@@ -113,7 +113,7 @@ def antiBase_search(antiBase_dict, filtered_spectra, from_csv = True ):
 					scan_name_map.append(spectra_key)
 					scan_RT_map.append(spec_RT)
 					scan_mz_map.append(spec_num)
-					scan_ppm_map.append(diff * 10**8)
+					scan_ppm_map.append(diff)
 		#  only allows matches that have a hydrogen adduct or sodium adduct to continue
 		if "Ion_Mass_M+H" in antiBase_adduct_map or "Ion_Mass_M+Na" in antiBase_adduct_map:
 			output_mapping_dict[antiBase_key] = [antiBase_adduct_map,scan_name_map, scan_RT_map,scan_mz_map,scan_ppm_map]
@@ -152,9 +152,9 @@ antiBase_dict,adduct_titles = importAdductMasses("new_antiBase_file.csv")
 for fname in os.listdir('.'):
 	if fname.endswith('.mzXML'):
 		antiBase_dict, filtered_spectra = preprocess_sample(fname, antiBase_dict,adduct_titles, 0.1,2)
-		k = antiBase_search(antiBase_dict,filtered_spectra)
-		k = filter_sample(k)
-		makeJson(k)
+		output_mapping_dict = antiBase_search(antiBase_dict,filtered_spectra)
+		filtered_output_mapping_dict = filter_sample(output_mapping_dict)
+		makeJson(filtered_output_mapping_dict)
 	elif fname.endswith('.csv') and fname.startswith("avg"):
 		filtered_spectra = {}
 
@@ -162,13 +162,19 @@ for fname in os.listdir('.'):
 			reader = csv.reader(mz_file)
 			next(reader)
 			for row in reader:
-				#print(row)
-				#input("...")
+				# row[0] is alignment number and row[1] is the m/z value
 				filtered_spectra[row[0]] = float(row[1])
-		k = antiBase_search(antiBase_dict,filtered_spectra)
+		output_mapping_dict = antiBase_search(antiBase_dict,filtered_spectra)
+		
+		with open('spectra_map.csv',"w") as csv_file:
+			writer = csv.writer(csv_file)
+			#legend = ["Antibase Chem Formula", ]
+			writer.writerow(output_mapping_dict.keys())
+			for val in zip(*output_mapping_dict.values()):
+				writer.writerow(val)
 
-		makeJson(k)
+		#makeJson(k)
 print("--- %s seconds ---" % (time.time() - start_time))
-os.system("python3 -m http.server")
+#os.system("python3 -m http.server")
 
 
