@@ -1,0 +1,19 @@
+lambda <- 1.0
+sigma ~ dnExponential(lambda)
+mu := ln(M) - (sigma^2)/2.0
+alpha <- 3.0
+beta <- 1.0
+M ∼ dnGamma(alpha, beta)
+M ~ dnGamma(alpha, beta)
+M~dnGamma(alpha, beta)
+M
+m
+M
+source("RevBayes_scripts/basics.Rev")
+dnorm(x=0.5,mean=0.0,sd=1) 
+observed_fatalities <- v(24,25,31,31,22,21,26,20,16,22)
+source("RevBayes_scripts/airline_fatalities_part1.Rev.")
+source("airline_fatalities_part1.Rev.")
+source("airline_fatalities_part1.Rev")
+source("RevBayes_scripts/airline_fatalities_part1.Rev")
+q()
