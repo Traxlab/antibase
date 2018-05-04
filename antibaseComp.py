@@ -6,8 +6,9 @@ import csv
 from datatoJson import *
 import glob
 import os
-import webbrowser
 import time
+from pyteomics import mass
+import pandas as pd 
 
 def importAdductMasses(antiBase_file):
 	""" This function is meant to import all of the data from the antiBase file with
@@ -147,14 +148,47 @@ def filter_sample(output_mapping_dict):
 	output_mapping_dict = None
 	return filtered_output_mapping_dict
 
+def write_to_csv(output_mapping_dict):
+	#Writes all information about hits into csv called "spectra_map.csv"
+	with open('spectra_map_temp1.csv',"w") as temp1_file:
+		writer = csv.writer(temp1_file)
+		#legend = ["Antibase Chem Formula", ]
+		writer.writerow(output_mapping_dict.keys())
+		mass_list = []
+		for key in output_mapping_dict.keys():
+			mass_list.append(mass.calculate_mass(formula=key))
+		writer.writerow(mass_list)
+		for val in zip(*output_mapping_dict.values()):
+			writer.writerow(val)
+
+	transpose = zip(*csv.reader(open("spectra_map_temp1.csv", "rt")))
+	headers = ["Antibase Chemical Formula", "Antibase Molecular Weight", "Adduct", "Scan/Alignment Number", "RT", "Scan/Alignment M/Z", "PPM"]
+
+	with open('spectra_map_temp2.csv',"w") as temp2_file:
+		writer2 = csv.writer(temp2_file)
+		writer2.writerow(headers)
+		writer2.writerows(transpose)
+
+	df = pd.read_csv('spectra_map_temp2.csv')
+	# rearrange column here
+	df_reorder = df[['Scan/Alignment Number', 'Scan/Alignment M/Z', 'Adduct', 'Antibase Chemical Formula', 'Antibase Molecular Weight', 'PPM', 'RT']] 
+	df_reorder.to_csv('spectra_map.csv', index=False)
+
+	os.system('rm spectra_map_temp1.csv')
+	os.system('rm spectra_map_temp2.csv')
+
+
 start_time = time.time()
 antiBase_dict,adduct_titles = importAdductMasses("new_antiBase_file.csv")
 for fname in os.listdir('.'):
+	output_mapping_dict = {}
 	if fname.endswith('.mzXML'):
 		antiBase_dict, filtered_spectra = preprocess_sample(fname, antiBase_dict,adduct_titles, 0.1,2)
-		output_mapping_dict = antiBase_search(antiBase_dict,filtered_spectra)
-		filtered_output_mapping_dict = filter_sample(output_mapping_dict)
-		makeJson(filtered_output_mapping_dict)
+		output_mapping_dict = antiBase_search(antiBase_dict,filtered_spectra, from_csv = False)
+		output_mapping_dict = filter_sample(output_mapping_dict)
+		write_to_csv(output_mapping_dict)
+		makeJson(output_mapping_dict)
+		#makeJson(filtered_output_mapping_dict)
 	elif fname.endswith('.csv') and fname.startswith("avg"):
 		filtered_spectra = {}
 
@@ -165,15 +199,8 @@ for fname in os.listdir('.'):
 				# row[0] is alignment number and row[1] is the m/z value
 				filtered_spectra[row[0]] = float(row[1])
 		output_mapping_dict = antiBase_search(antiBase_dict,filtered_spectra)
-		
-		with open('spectra_map.csv',"w") as csv_file:
-			writer = csv.writer(csv_file)
-			#legend = ["Antibase Chem Formula", ]
-			writer.writerow(output_mapping_dict.keys())
-			for val in zip(*output_mapping_dict.values()):
-				writer.writerow(val)
-
-		#makeJson(k)
+		write_to_csv(output_mapping_dict)
+		makeJson(output_mapping_dict)
 print("--- %s seconds ---" % (time.time() - start_time))
 #os.system("python3 -m http.server")
 
